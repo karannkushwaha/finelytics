@@ -125,3 +125,73 @@ export const getAccountWithTransactions = async (accountId) => {
     };
   }
 };
+
+export const bulkDeleteTransactions = async (transactionIds) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const loggedInUser = await prismaDB.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!loggedInUser) {
+      throw new Error("User not found");
+    }
+
+    const transactions = await prismaDB.transaction.findMany({
+      where: {
+        id: { in: transactionIds },
+        userId: loggedInUser.id,
+      },
+    });
+
+    const accountBalanceChanges = transactions.reduce((acc, transaction) => {
+      const change =
+        transaction.type === "EXPENSE"
+          ? transaction.amount
+          : -transaction.amount;
+      acc[transaction.accountId] = (acc[transaction.accountId] || 0) + change;
+      return acc;
+    }, {});
+
+    await prismaDB.$transaction(async (tx) => {
+      await tx.transaction.deleteMany({
+        where: {
+          id: { in: transactionIds },
+          userId: loggedInUser.id,
+        },
+      });
+
+      await Promise.all(
+        Object.entries(accountBalanceChanges).map(
+          ([accountId, balanceChange]) =>
+            tx.account.update({
+              where: { id: accountId },
+              data: {
+                balance: {
+                  increment: balanceChange,
+                },
+              },
+            })
+        )
+      );
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/account/[id]");
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Error in bulkDeleteTransactions:", error);
+    return {
+      success: false,
+      message: error.message || "An unexpected error occurred",
+    };
+  }
+};
