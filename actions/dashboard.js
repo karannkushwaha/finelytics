@@ -1,6 +1,7 @@
 "use server";
 
 import { prismaDB } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/utils/auth";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
@@ -14,18 +15,7 @@ const serializeTransaction = (transaction) => {
 
 export const createAccount = async (userData) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("Unauthorized");
-    }
-    const loggedInUser = await prismaDB.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!loggedInUser) {
-      throw new Error("User not found");
-    }
+    const loggedInUser = await getAuthenticatedUser();
 
     const balanceFloat = parseFloat(userData.balance);
     if (isNaN(balanceFloat)) {
@@ -77,18 +67,7 @@ export const createAccount = async (userData) => {
 
 export const getUserAccounts = async () => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("Unauthorized");
-    }
-    const loggedInUser = await prismaDB.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!loggedInUser) {
-      throw new Error("User not found");
-    }
+    const loggedInUser = await getAuthenticatedUser();
 
     const accounts = await prismaDB.account.findMany({
       where: {
