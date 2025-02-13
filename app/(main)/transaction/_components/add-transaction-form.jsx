@@ -27,6 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import ReceiptScanner from "./receipt-scanner";
 
 const AddTransactionForm = ({ accounts = {}, categories = [] }) => {
   const router = useRouter();
@@ -78,8 +79,11 @@ const AddTransactionForm = ({ accounts = {}, categories = [] }) => {
     }
   }, [transactionResult, transactionLoading]);
 
+  const handleComplete = () => {};
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <ReceiptScanner onScanComplete={handleComplete} />
       <div className="space-y-2">
         <label className="text-sm font-medium">Type</label>
         <Select
