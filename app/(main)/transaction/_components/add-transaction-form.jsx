@@ -79,11 +79,27 @@ const AddTransactionForm = ({ accounts = {}, categories = [] }) => {
     }
   }, [transactionResult, transactionLoading]);
 
-  const handleComplete = () => {};
+  const handleScanComplete = (scanedData) => {
+    if (scanedData && scanedData.data) {
+      console.log("Scanned Data:", scanedData); // Print to console
+
+      setValue("amount", scanedData.data.amount.toString());
+      setValue("date", new Date(scanedData.data.date));
+
+      if (scanedData.data.description) {
+        setValue("description", scanedData.data.description);
+      }
+      if (scanedData.data.category) {
+        setValue("category", scanedData.data.category);
+      }
+    } else {
+      console.error("Invalid scanedData structure:", scanedData);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <ReceiptScanner onScanComplete={handleComplete} />
+      <ReceiptScanner onScanComplete={handleScanComplete} />
       <div className="space-y-2">
         <label className="text-sm font-medium">Type</label>
         <Select

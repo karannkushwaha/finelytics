@@ -94,30 +94,28 @@ export const scanReceipt = async (file) => {
 
   try {
     const model = genAi.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    // Convert the file to a base64 string
     const base64String = await convertFileToBase64(file);
-
-    // Define the prompt for the generative model
     const prompt = `
-      Analyze this receipt image and extract the following information in JSON format:
-      - Total amount (just the number)
-      - Date (in ISO format)
-      - Description or items purchased (brief summary)
-      - Merchant/store name
-      - Suggested category (one of: housing, transportation, groceries, utilities, entertainment, food, shopping, healthcare, education, personal, travel, insurance, gifts, bills, other-expense)
-      
-      Only respond with valid JSON in this exact format:
-      {
-        "amount": number,
-        "date": "ISO date string",
-        "description": "string",
-        "merchantName": "string",
-        "category": "string"
-      }
+  Analyze this receipt image and extract the following information in JSON format:
+  - Total amount (just the number, converted to INR if in another currency using the latest exchange rate, and ensure the amount is positive)
+  - Date (in ISO format)
+  - Description or items purchased (brief summary)
+  - Merchant/store name
+  - Suggested category (one of: housing, transportation, groceries, utilities, entertainment, food, shopping, healthcare, education, personal, travel, insurance, gifts, bills, other-expense)
 
-      If it's not a receipt, return an empty object.
-    `;
+  Only respond with valid JSON in this exact format:
+  {
+    "amount": number, // Amount in INR (converted if needed)
+    "date": "ISO date string",
+    "description": "string",
+    "merchantName": "string",
+    "category": "string"
+  }
+
+  - If the amount is in a different currency, convert it to INR using the latest exchange rate.
+  - Ensure the amount is always positive.
+  - If it's not a receipt, return an empty object.
+`;
 
     const result = await model.generateContent([
       {
