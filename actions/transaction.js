@@ -175,3 +175,84 @@ const convertFileToBase64 = async (file) => {
 const cleanResponseText = (text) => {
   return text.replace(/```(?:json)?\n?/g, "").trim();
 };
+
+export const getTransaction = async (id) => {
+  try {
+    const loggedInUser = await getAuthenticatedUser();
+    const transaction = await prismaDB.transaction.findUnique({
+      where: { id, userId: loggedInUser.id },
+    });
+
+    if (!transaction) throw new Error("Transaction not found.");
+
+    return serializeTransaction(transaction);
+  } catch (error) {
+    console.error("Error fetching transaction:", error);
+    return {
+      success: false,
+      message:
+        error.message || "An error occurred while fetching the transaction.",
+    };
+  }
+};
+
+export const updateTransaction = async (id, data) => {
+  try {
+    const loggedInUser = await getAuthenticatedUser();
+    const originalTransaction = await prismaDB.transaction.findUnique({
+      where: { id, userId: loggedInUser.id },
+      include: { account: true },
+    });
+
+    if (!originalTransaction) throw new Error("Transaction not found.");
+
+    if (!data.amount || isNaN(data.amount)) {
+      throw new Error("Invalid amount.");
+    }
+
+    if (!data.accountId) {
+      throw new Error("Account ID is required.");
+    }
+
+    const oldAmount = originalTransaction.amount
+      ? originalTransaction.amount.toNumber()
+      : 0;
+    const newAmount = parseFloat(data.amount);
+    const oldBalanceChange =
+      originalTransaction.type === "EXPENSE" ? -oldAmount : oldAmount;
+    const newBalanceChange = data.type === "EXPENSE" ? -newAmount : newAmount;
+    const netBalanceChange = newBalanceChange - oldBalanceChange;
+
+    const updatedTransaction = await prismaDB.$transaction(async (tx) => {
+      const updated = await tx.transaction.update({
+        where: { id, userId: loggedInUser.id },
+        data: {
+          ...data,
+          nextRecurringDate:
+            data.isRecurring && data.recurringInterval
+              ? calculateNextRecurringDate(data.date, data.recurringInterval)
+              : null,
+        },
+      });
+
+      await tx.account.update({
+        where: { id: data.accountId },
+        data: { balance: { increment: netBalanceChange } },
+      });
+
+      return updated;
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/account/${data.accountId}`);
+
+    return { success: true, data: serializeTransaction(updatedTransaction) };
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    return {
+      success: false,
+      message:
+        error.message || "An error occurred while updating the transaction.",
+    };
+  }
+};
