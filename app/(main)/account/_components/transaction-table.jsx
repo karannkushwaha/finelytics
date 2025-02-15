@@ -33,34 +33,36 @@ import {
 import { categoryColors } from "@/data/categories";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Clock } from "lucide-react";
-import { RefreshCw } from "lucide-react";
+import {
+  Clock,
+  RefreshCw,
+  MoreHorizontal,
+  ChevronUp,
+  ChevronDown,
+  Search,
+  Trash,
+  X,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronUp } from "lucide-react";
-import { ChevronDown } from "lucide-react";
-import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Trash } from "lucide-react";
-import { X } from "lucide-react";
 import useFetch from "@/hooks/use-fetch";
 import { bulkDeleteTransactions } from "@/actions/accounts";
 import { toast } from "sonner";
 import { BarLoader } from "react-spinners";
-import { ChevronRight } from "lucide-react";
-import { ChevronLeft } from "lucide-react";
 
 const RECURRING_INTERVALS = {
   DAILY: "Daily",
   WEEKLY: "Weekly",
-  MONTHLY: "Monyhly",
+  MONTHLY: "Monthly",
   YEARLY: "Yearly",
 };
 const ITEMS_PER_PAGE = 10;
 
-const TransactionsTable = ({ transactions }) => {
+const TransactionsTable = ({ transactions = [] }) => {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState([]);
   const [sortConfig, setSortConfig] = useState({
@@ -79,21 +81,34 @@ const TransactionsTable = ({ transactions }) => {
   } = useFetch(bulkDeleteTransactions);
 
   const handleBulkDelete = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete ${selectedIds.length} transaction${
-          selectedIds.length > 1 ? "s" : ""
-        }? This action cannot be undone.`
-      )
-    ) {
-      return;
+    const confirmed = await toast.promise(
+      new Promise((resolve) => {
+        resolve(
+          window.confirm(
+            `Are you sure you want to delete ${selectedIds.length} transaction${
+              selectedIds.length > 1 ? "s" : ""
+            }? This action cannot be undone.`
+          )
+        );
+      }),
+      {
+        loading: "Deleting transactions...",
+        success: "Transactions deleted successfully.",
+        error: "Failed to delete transactions.",
+      }
+    );
+    if (confirmed) {
+      try {
+        await deleteFn(selectedIds);
+      } catch (error) {
+        toast.error("Failed to delete transactions.");
+      }
     }
-    deleteFn(selectedIds);
   };
 
   useEffect(() => {
     if (deleted && !deleteLoading) {
-      toast.error("Transactions deleted successfully.");
+      toast.success("Transactions deleted successfully.");
     }
   }, [deleted, deleteLoading]);
 
@@ -119,15 +134,14 @@ const TransactionsTable = ({ transactions }) => {
       let comparison = 0;
       switch (sortConfig.field) {
         case "date":
-          comparison = new Date(a.date) - new Date(b.date);
+          comparison = new Date(a.date || 0) - new Date(b.date || 0);
           break;
         case "amount":
-          comparison = a.amount - b.amount;
+          comparison = (a.amount || 0) - (b.amount || 0);
           break;
         case "category":
-          comparison = a.category.localeCompare(b.category);
+          comparison = (a.category || "").localeCompare(b.category || "");
           break;
-
         default:
           comparison = 0;
       }
@@ -151,23 +165,24 @@ const TransactionsTable = ({ transactions }) => {
     setSortConfig((current) => ({
       field,
       direction:
-        current.field == field && current.direction === "asc" ? "desc" : "asc",
+        current.field === field && current.direction === "asc" ? "desc" : "asc",
     }));
   };
 
   const handleSelect = (id) => {
     setSelectedIds((current) =>
       current.includes(id)
-        ? current.filter((item) => item != id)
+        ? current.filter((item) => item !== id)
         : [...current, id]
     );
   };
+
   const handleSelectAll = () => {
-    setSelectedIds((current) =>
-      current.length === paginatedTransactions.length
-        ? []
-        : paginatedTransactions.map((t) => t.id)
-    );
+    if (selectedIds.length === paginatedTransactions.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(paginatedTransactions.map((t) => t.id));
+    }
   };
 
   const handleClearFilters = () => {
@@ -176,6 +191,7 @@ const TransactionsTable = ({ transactions }) => {
     setRecurringFilter("");
     setSelectedIds([]);
   };
+
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     setSelectedIds([]);
@@ -340,7 +356,8 @@ const TransactionsTable = ({ transactions }) => {
                   <TableCell className="capitalize">
                     <span
                       style={{
-                        background: categoryColors[transaction.category],
+                        background:
+                          categoryColors[transaction.category] || "#cccccc",
                       }}
                       className="px-2 py-1 rounded text-white text-sm"
                     >
@@ -366,11 +383,9 @@ const TransactionsTable = ({ transactions }) => {
                               className="gap-1 bg-purple-100 text-purple-700 hover:bg-purple-200"
                             >
                               <RefreshCw className="h-3 w-3" />
-                              {
-                                RECURRING_INTERVALS[
-                                  transaction.recurringInterval
-                                ]
-                              }
+                              {RECURRING_INTERVALS[
+                                transaction.recurringInterval
+                              ] || "Unknown"}
                             </Badge>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -396,7 +411,11 @@ const TransactionsTable = ({ transactions }) => {
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          aria-label="More actions"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -426,7 +445,7 @@ const TransactionsTable = ({ transactions }) => {
           </TableBody>
         </Table>
       </div>
-      {totalPages > 1 && (
+      {totalPages > 1 && filteredAndSortedTransaction.length > 0 && (
         <div className="flex items-center justify-center gap-2">
           <Button
             variant="outline"

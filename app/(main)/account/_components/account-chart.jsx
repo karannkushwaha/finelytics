@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
-  Rectangle,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -29,17 +28,22 @@ const DATE_RANGES = {
   ALL: { label: "All Time", days: null },
 };
 
-const AccountChart = ({ transactions }) => {
+const AccountChart = ({ transactions = [] }) => {
   const [dateRange, setDateRange] = useState("1M");
+
   const filteredData = useMemo(() => {
+    if (!transactions || transactions.length === 0) return [];
+
     const range = DATE_RANGES[dateRange];
     const now = new Date();
     const startDate = range.days
       ? startOfDay(subDays(now, range.days))
       : startOfDay(new Date(0));
+
     const filtered = transactions.filter(
       (t) => new Date(t.date) >= startDate && new Date(t.date) <= endOfDay(now)
     );
+
     const grouped = filtered.reduce((acc, transaction) => {
       const date = format(new Date(transaction.date), "MMM dd");
       if (!acc[date]) {
@@ -57,6 +61,7 @@ const AccountChart = ({ transactions }) => {
       (a, b) => new Date(a.date) - new Date(b.date)
     );
   }, [transactions, dateRange]);
+
   const totals = useMemo(() => {
     return filteredData.reduce(
       (acc, day) => ({
@@ -107,7 +112,7 @@ const AccountChart = ({ transactions }) => {
           <div className="text-center">
             <p className="text-muted-foreground">Net</p>
             <p
-              className={`text-lg font-bold text-green-500 ${
+              className={`text-lg font-bold ${
                 totals.income - totals.expense >= 0
                   ? "text-green-500"
                   : "text-red-500"
@@ -129,7 +134,7 @@ const AccountChart = ({ transactions }) => {
                 bottom: 0,
               }}
             >
-              <CartesianGrid strokeDasharray="3 3" version={false} />
+              <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis
                 fontSize={12}

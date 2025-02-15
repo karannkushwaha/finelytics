@@ -3,11 +3,14 @@ import { defaultCategories } from "@/data/categories";
 import AddTransactionForm from "../_components/add-transaction-form";
 import { getTransaction } from "@/actions/transaction";
 
-const AddTransactionPage = async ({ searchParams }) => {
-  const accounts = await getUserAccounts();
-  const editId = searchParams?.edit ?? null;
-  let initialData = null;
+export const dynamic = "force-dynamic";
 
+const AddTransactionPage = async ({ searchParams }) => {
+  const editId = searchParams?.edit ?? null;
+
+  const accounts = await getUserAccounts();
+
+  let initialData = null;
   if (editId) {
     try {
       initialData = await getTransaction(editId);

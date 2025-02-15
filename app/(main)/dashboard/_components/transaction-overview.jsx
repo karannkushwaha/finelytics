@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -16,8 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { ArrowDownRight } from "lucide-react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from "recharts";
 
@@ -33,25 +26,27 @@ const COLORS = [
 
 const DashboardOverview = ({ accounts = [], transactions = [] }) => {
   const defaultAccountId =
-    Array.isArray(accounts?.account) && accounts.account.length > 0
+    accounts?.account &&
+    Array.isArray(accounts.account) &&
+    accounts.account.length > 0
       ? accounts.account.find((a) => a.isDefault)?.id || accounts.account[0].id
       : null;
 
   const [selectedAccountId, setSelectedAccountId] = useState(defaultAccountId);
 
   const accountTransactions = transactions
+    .filter((t) => t.accountId === selectedAccountId) // Filter by selected account
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5);
 
   const currentDate = new Date();
-  const currentMonthEx = accountTransactions.filter((t) => {
-    const transactionDate = new Date(t.date);
-    return (
-      t.type === "EXPENSE" &&
-      transactionDate.getMonth() === currentDate.getMonth() &&
-      transactionDate.getFullYear() === currentDate.getFullYear()
-    );
-  });
+  const currentMonthEx = transactions.filter(
+    (t) =>
+      t.accountId === selectedAccountId && // Filter by selected account
+      t.type === "EXPENSE" && // Only include expenses
+      new Date(t.date).getMonth() === currentDate.getMonth() && // Current month
+      new Date(t.date).getFullYear() === currentDate.getFullYear() // Current year
+  );
 
   const expenseByCategory = currentMonthEx.reduce((acc, transaction) => {
     const category = transaction.category;
@@ -70,7 +65,7 @@ const DashboardOverview = ({ accounts = [], transactions = [] }) => {
   );
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2 min-w-[300px]">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-base font-normal">
@@ -81,10 +76,7 @@ const DashboardOverview = ({ accounts = [], transactions = [] }) => {
             onValueChange={setSelectedAccountId}
           >
             <SelectTrigger className="w-[140px]">
-              <SelectValue
-                placeholder="Select account"
-                defaultValue={selectedAccountId}
-              >
+              <SelectValue placeholder="Select account">
                 {accounts?.account.find((acc) => acc.id === selectedAccountId)
                   ?.name || "Select account"}
               </SelectValue>
