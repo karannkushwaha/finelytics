@@ -2,7 +2,6 @@
 
 import { prismaDB } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/utils/auth";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 const serializeTransaction = (transaction) => {
@@ -92,5 +91,21 @@ export const getUserAccounts = async () => {
       success: false,
       message: error.message || "Failed to fetch accounts",
     };
+  }
+};
+
+export const getDashboardData = async () => {
+  try {
+    const loggedInUser = await getAuthenticatedUser();
+
+    const transactions = await prismaDB.transaction.findMany({
+      where: { userId: loggedInUser.id },
+      orderBy: { date: "desc" },
+    });
+
+    return transactions.map(serializeTransaction);
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    return [];
   }
 };
