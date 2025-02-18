@@ -7,7 +7,6 @@ import { getCurrentBudget } from "@/actions/budget";
 import BudgetProgress from "./_components/budget-progress";
 import { Suspense } from "react";
 import DashboardOverview from "./_components/transaction-overview";
-import { dynamic } from "next/dynamic";
 
 // Force dynamic rendering for this page
 export const dynamic = "force-dynamic";
