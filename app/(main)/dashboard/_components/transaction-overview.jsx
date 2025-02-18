@@ -24,10 +24,12 @@ const COLORS = [
   "#9FA8DA",
 ];
 
-const DashboardOverview = ({ accounts = [], transactions = [] }) => {
+const DashboardOverview = ({
+  accounts = { account: [] },
+  transactions = [],
+}) => {
   const defaultAccountId =
-    accounts &&
-    accounts.account &&
+    accounts?.account &&
     Array.isArray(accounts.account) &&
     accounts.account.length > 0
       ? accounts.account.find((a) => a.isDefault)?.id || accounts.account[0].id
@@ -178,6 +180,11 @@ const DashboardOverview = ({ accounts = [], transactions = [] }) => {
       </Card>
     </div>
   );
+};
+
+DashboardOverview.defaultProps = {
+  accounts: { account: [] },
+  transactions: [],
 };
 
 export default DashboardOverview;
