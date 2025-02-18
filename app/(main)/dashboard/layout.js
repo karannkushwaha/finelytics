@@ -1,7 +1,12 @@
 import { Suspense, lazy } from "react";
 import { BarLoader } from "react-spinners";
 
-const DashboardPage = lazy(() => import("./page"));
+const DashboardPage = lazy(() =>
+  import("./page").catch((error) => {
+    console.error("Error loading DashboardPage:", error);
+    throw error;
+  })
+);
 
 const DashboardLayout = () => {
   return (
