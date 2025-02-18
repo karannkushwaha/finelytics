@@ -26,7 +26,8 @@ const COLORS = [
 
 const DashboardOverview = ({ accounts = [], transactions = [] }) => {
   const defaultAccountId =
-    accounts?.account &&
+    accounts &&
+    accounts.account &&
     Array.isArray(accounts.account) &&
     accounts.account.length > 0
       ? accounts.account.find((a) => a.isDefault)?.id || accounts.account[0].id
