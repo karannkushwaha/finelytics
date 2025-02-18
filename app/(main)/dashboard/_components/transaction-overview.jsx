@@ -78,8 +78,10 @@ const DashboardOverview = ({ accounts = [], transactions = [] }) => {
           >
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Select account">
-                {accounts?.account.find((acc) => acc.id === selectedAccountId)
-                  ?.name || "Select account"}
+                {accounts?.account && Array.isArray(accounts.account)
+                  ? accounts.account.find((acc) => acc.id === selectedAccountId)
+                      ?.name || "Select account"
+                  : "Select account"}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
