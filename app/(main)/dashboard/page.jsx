@@ -7,29 +7,21 @@ import { getCurrentBudget } from "@/actions/budget";
 import BudgetProgress from "./_components/budget-progress";
 import { Suspense } from "react";
 import DashboardOverview from "./_components/transaction-overview";
+// import { dynamic } from "next/dynamic";
 
-// Force dynamic rendering for this page
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 const DashboardPage = async () => {
-  console.log("Fetching user accounts...");
   const accounts = await getUserAccounts();
-  console.log("Accounts:", accounts);
-
   const defaultAccount = accounts?.account?.find(
     (account) => account.isDefault
   );
 
   let budgetData = null;
   if (defaultAccount) {
-    console.log("Fetching budget data...");
     budgetData = await getCurrentBudget(defaultAccount.id);
-    console.log("Budget Data:", budgetData);
   }
-
-  console.log("Fetching dashboard data...");
   const transaction = await getDashboardData();
-  console.log("Transactions:", transaction);
 
   return (
     <div className="space-y-8">
@@ -40,7 +32,7 @@ const DashboardPage = async () => {
         />
       )}
 
-      <Suspense fallback={<div>Loading Overview...</div>}>
+      <Suspense fallback={"Loading Overview..."}>
         <DashboardOverview
           accounts={accounts}
           transactions={transaction || []}
