@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState } from "react"; // Import React explicitly (optional in React 17+)
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from "recharts";
+import PropTypes from "prop-types"; // Import PropTypes for validation
 
 const COLORS = [
   "#FF6B6B",
@@ -182,6 +183,32 @@ const DashboardOverview = ({
   );
 };
 
+// Add PropTypes validation
+DashboardOverview.propTypes = {
+  accounts: PropTypes.shape({
+    account: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        isDefault: PropTypes.bool,
+      })
+    ),
+  }),
+  transactions: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      accountId: PropTypes.string.isRequired,
+      description: PropTypes.string,
+      date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)])
+        .isRequired,
+      amount: PropTypes.number.isRequired,
+      type: PropTypes.oneOf(["INCOME", "EXPENSE"]).isRequired,
+      category: PropTypes.string,
+    })
+  ),
+};
+
+// Default props are already defined using object destructuring defaults, but kept here for clarity
 DashboardOverview.defaultProps = {
   accounts: { account: [] },
   transactions: [],

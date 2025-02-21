@@ -1,3 +1,4 @@
+import PropTypes from "prop-types"; // Import PropTypes
 import { getAccountWithTransactions } from "@/actions/accounts";
 import { notFound } from "next/navigation";
 import TransactionsTable from "../_components/transaction-table";
@@ -50,6 +51,13 @@ const Account = async ({ params }) => {
       </Suspense>
     </div>
   );
+};
+
+// Add PropTypes validation
+Account.propTypes = {
+  params: PropTypes.shape({
+    id: PropTypes.string.isRequired, // Validate params.id
+  }).isRequired,
 };
 
 export default Account;

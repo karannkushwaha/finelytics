@@ -1,6 +1,7 @@
 "use client";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
-import { useMemo, useState } from "react";
+import { useMemo, useState } from "react"; // Import React explicitly (optional in React 17+)
+import PropTypes from "prop-types"; // Import PropTypes for props validation
 import {
   BarChart,
   Bar,
@@ -162,6 +163,17 @@ const AccountChart = ({ transactions = [] }) => {
       </CardContent>
     </Card>
   );
+};
+
+// Add PropTypes validation
+AccountChart.propTypes = {
+  transactions: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+      amount: PropTypes.number.isRequired,
+      type: PropTypes.oneOf(["INCOME", "EXPENSE"]).isRequired,
+    })
+  ),
 };
 
 export default AccountChart;

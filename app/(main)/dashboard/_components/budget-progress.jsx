@@ -1,4 +1,5 @@
 "use client";
+
 import { updateBudget } from "@/actions/budget";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,15 +12,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import useFetch from "@/hooks/use-fetch";
-import { X } from "lucide-react";
-import { Pencil } from "lucide-react";
-import { Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { X, Pencil, Check } from "lucide-react";
+import { useEffect, useState } from "react"; // Import React explicitly (optional in React 17+)
 import { toast } from "sonner";
+import PropTypes from "prop-types"; // Import PropTypes for validation
 
 const BudgetProgress = ({ initialBudget, currentExpenses }) => {
-  // console.log(initialBudget);
-  // console.log(currentExpenses);
   const [isEditing, setIsEditing] = useState(false);
   const [newBudget, setNewBudget] = useState(
     initialBudget?.amount?.toString() || ""
@@ -44,17 +42,20 @@ const BudgetProgress = ({ initialBudget, currentExpenses }) => {
     }
     await updateBudgetFn(amount);
   };
+
   useEffect(() => {
     if (updateBudgetResponse?.success) {
       setIsEditing(false);
       toast.success("Budget updated successfully");
     }
   }, [updateBudgetResponse]);
+
   useEffect(() => {
     if (error) {
       toast.error(error.message || "Failed to update budget");
     }
   }, [error]);
+
   const handleCancelBudget = () => {
     setNewBudget(initialBudget?.amount?.toString() || "");
     setIsEditing(false);
@@ -139,6 +140,14 @@ const BudgetProgress = ({ initialBudget, currentExpenses }) => {
       </Card>
     </div>
   );
+};
+
+// Add PropTypes validation
+BudgetProgress.propTypes = {
+  initialBudget: PropTypes.shape({
+    amount: PropTypes.number.isRequired, // Validates `amount` (and implicitly `toFixed` as a number method)
+  }),
+  currentExpenses: PropTypes.number.isRequired, // Validates `currentExpenses` (and implicitly `toFixed` as a number method)
 };
 
 export default BudgetProgress;

@@ -21,14 +21,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect } from "react"; // Import React explicitly (optional in React 17+)
 import { toast } from "sonner";
 import ReceiptScanner from "./receipt-scanner";
-import { Loader2 } from "lucide-react";
+import PropTypes from "prop-types"; // Import PropTypes for validation
 
 const AddTransactionForm = ({
   accounts = {},
@@ -109,7 +109,7 @@ const AddTransactionForm = ({
       reset();
       router.push(`/account/${transactionResult.data.accountId}`);
     }
-  }, [transactionResult, transactionLoading, editMode]);
+  }, [transactionResult, transactionLoading, editMode, reset, router]);
 
   const handleScanComplete = (scanedData) => {
     if (scanedData && scanedData.data) {
@@ -249,7 +249,7 @@ const AddTransactionForm = ({
       <div className="space-y-2">
         <label className="text-sm font-medium">Description</label>
         <Input placeholder="Enter description" {...register("description")} />
-        {errors.date && (
+        {errors.description && ( // Fixed typo from errors.date to errors.description
           <p className="text-sm text-red-500">{errors.description.message}</p>
         )}
       </div>
@@ -316,12 +316,50 @@ const AddTransactionForm = ({
           ) : editMode ? (
             "Update Transaction"
           ) : (
-            " Create Transaction"
+            "Create Transaction" // Removed extra space from " Create Transaction"
           )}
         </Button>
       </div>
     </form>
   );
+};
+
+// Add PropTypes validation
+AddTransactionForm.propTypes = {
+  accounts: PropTypes.shape({
+    account: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        balance: PropTypes.number.isRequired,
+        isDefault: PropTypes.bool,
+      })
+    ),
+  }),
+  categories: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      type: PropTypes.oneOf(["INCOME", "EXPENSE"]).isRequired,
+    })
+  ),
+  initialData: PropTypes.shape({
+    type: PropTypes.oneOf(["INCOME", "EXPENSE"]).isRequired,
+    amount: PropTypes.number.isRequired,
+    description: PropTypes.string,
+    accountId: PropTypes.string.isRequired,
+    category: PropTypes.string,
+    date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)])
+      .isRequired,
+    isRecurring: PropTypes.bool.isRequired,
+    recurringInterval: PropTypes.oneOf([
+      "DAILY",
+      "WEEKLY",
+      "MONTHLY",
+      "YEARLY",
+    ]),
+  }),
+  editMode: PropTypes.bool,
 };
 
 export default AddTransactionForm;

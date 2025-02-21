@@ -1,3 +1,5 @@
+import React from "react"; // Import React explicitly (optional in React 17+)
+import PropTypes from "prop-types"; // Import PropTypes
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header";
@@ -33,3 +35,8 @@ export default function RootLayout({ children }) {
     </ClerkProvider>
   );
 }
+
+// Add PropTypes validation
+RootLayout.propTypes = {
+  children: PropTypes.node.isRequired, // Validate children
+};

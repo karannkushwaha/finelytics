@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react"; // Import React explicitly (optional in React 17+)
+import PropTypes from "prop-types"; // Import PropTypes
 import { scanReceipt } from "@/actions/transaction";
 import { Button } from "@/components/ui/button";
 import useFetch from "@/hooks/use-fetch";
@@ -15,6 +17,7 @@ const ReceiptScanner = ({ onScanComplete }) => {
     fn: scanReceiptFn,
     data: scanedData,
   } = useFetch(scanReceipt);
+
   const handleReceiptScan = async (file) => {
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File size should be less than 5MB...!");
@@ -28,7 +31,8 @@ const ReceiptScanner = ({ onScanComplete }) => {
       onScanComplete(scanedData);
       toast.success("Receipt scanned Successfully.");
     }
-  }, [scanReceiptLoading, scanedData]);
+  }, [scanReceiptLoading, scanedData, onScanComplete]);
+
   return (
     <div>
       <input
@@ -61,6 +65,11 @@ const ReceiptScanner = ({ onScanComplete }) => {
       </Button>
     </div>
   );
+};
+
+// Add PropTypes validation
+ReceiptScanner.propTypes = {
+  onScanComplete: PropTypes.func.isRequired, // Validate onScanComplete
 };
 
 export default ReceiptScanner;

@@ -10,11 +10,11 @@ import {
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import useFetch from "@/hooks/use-fetch";
-import { ArrowDownRight } from "lucide-react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect } from "react"; // Import React explicitly (optional in React 17+)
 import { toast } from "sonner";
+import PropTypes from "prop-types"; // Import PropTypes for validation
 
 const AccountCard = ({ account }) => {
   const { name, type, balance, id, isDefault } = account;
@@ -84,6 +84,18 @@ const AccountCard = ({ account }) => {
       </Card>
     </div>
   );
+};
+
+// Add PropTypes validation
+AccountCard.propTypes = {
+  account: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired, // Validates `type`; methods like `charAt` and `slice` are implicitly covered
+    balance: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+      .isRequired, // Allow number or string (parsed later)
+    id: PropTypes.string.isRequired,
+    isDefault: PropTypes.bool.isRequired,
+  }).isRequired,
 };
 
 export default AccountCard;

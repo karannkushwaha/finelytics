@@ -1,3 +1,5 @@
+import React from "react"; // Import React explicitly (optional in React 17+)
+import PropTypes from "prop-types"; // Import PropTypes
 import { getUserAccounts } from "@/actions/dashboard";
 import { defaultCategories } from "@/data/categories";
 import AddTransactionForm from "../_components/add-transaction-form";
@@ -33,6 +35,13 @@ const AddTransactionPage = async ({ searchParams }) => {
       />
     </div>
   );
+};
+
+// Add PropTypes validation
+AddTransactionPage.propTypes = {
+  searchParams: PropTypes.shape({
+    edit: PropTypes.string, // Validate searchParams.edit
+  }),
 };
 
 export default AddTransactionPage;

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
-
+import PropTypes from "prop-types"; // Import PropTypes
 import { cn } from "@/lib/utils";
 
 const Progress = React.forwardRef(
@@ -23,5 +23,12 @@ const Progress = React.forwardRef(
   )
 );
 Progress.displayName = ProgressPrimitive.Root.displayName;
+
+// Add PropTypes validation
+Progress.propTypes = {
+  className: PropTypes.string, // Validate className
+  value: PropTypes.number, // Validate value
+  extraStyles: PropTypes.string, // Validate extraStyles
+};
 
 export { Progress };

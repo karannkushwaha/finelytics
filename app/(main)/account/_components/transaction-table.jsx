@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import PropTypes from "prop-types"; // Import PropTypes for validation
 import { categoryColors } from "@/data/categories";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +47,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react"; // Import React explicitly (optional in React 17+)
 import { Input } from "@/components/ui/input";
 import useFetch from "@/hooks/use-fetch";
 import { bulkDeleteTransactions } from "@/actions/accounts";
@@ -100,7 +100,9 @@ const TransactionsTable = ({ transactions = [] }) => {
     if (confirmed) {
       try {
         await deleteFn(selectedIds);
-      } catch (error) {
+        // eslint-disable-next-line no-unused-vars
+      } catch (_error) {
+        // Rename to _error to indicate unused variable
         toast.error("Failed to delete transactions.");
       }
     }
@@ -470,6 +472,32 @@ const TransactionsTable = ({ transactions = [] }) => {
       )}
     </div>
   );
+};
+
+// Add PropTypes validation
+TransactionsTable.propTypes = {
+  transactions: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)])
+        .isRequired,
+      description: PropTypes.string,
+      category: PropTypes.string,
+      amount: PropTypes.number.isRequired,
+      type: PropTypes.oneOf(["INCOME", "EXPENSE"]).isRequired,
+      isRecurring: PropTypes.bool,
+      recurringInterval: PropTypes.oneOf([
+        "DAILY",
+        "WEEKLY",
+        "MONTHLY",
+        "YEARLY",
+      ]),
+      nextRecurringDate: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.instanceOf(Date),
+      ]),
+    })
+  ),
 };
 
 export default TransactionsTable;

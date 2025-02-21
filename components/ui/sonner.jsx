@@ -1,14 +1,13 @@
 "use client";
-import { useTheme } from "next-themes"
-import { Toaster as Sonner } from "sonner"
+import React from "react"; // Add this line
+import { useTheme } from "next-themes";
+import { Toaster as Sonner } from "sonner";
 
-const Toaster = ({
-  ...props
-}) => {
-  const { theme = "system" } = useTheme()
+const Toaster = ({ ...props }) => {
+  const { theme = "system" } = useTheme();
 
   return (
-    (<Sonner
+    <Sonner
       theme={theme}
       className="toaster group"
       toastOptions={{
@@ -19,11 +18,12 @@ const Toaster = ({
           actionButton:
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "group-[.ast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
-      {...props} />)
+      {...props}
+    />
   );
-}
+};
 
-export { Toaster }
+export { Toaster };

@@ -6,6 +6,8 @@ import { LayoutDashboard } from "lucide-react";
 import { PenBox } from "lucide-react";
 import { checkUser } from "@/lib/checkUser";
 
+export const dynamic = "force-dynamic";
+
 const Header = async () => {
   await checkUser();
   return (

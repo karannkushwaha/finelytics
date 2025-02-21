@@ -1,8 +1,9 @@
-import * as React from "react"
+import * as React from "react";
 import { cva } from "class-variance-authority";
+import PropTypes from "prop-types"; // Import PropTypes
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
-
+// Define badge variants using cva
 const badgeVariants = cva(
   "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
@@ -21,14 +22,20 @@ const badgeVariants = cva(
       variant: "default",
     },
   }
-)
+);
 
-function Badge({
-  className,
-  variant,
-  ...props
-}) {
-  return (<div className={cn(badgeVariants({ variant }), className)} {...props} />);
+// Badge Component
+function Badge({ className, variant, ...props }) {
+  return (
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+  );
 }
 
-export { Badge, badgeVariants }
+// Define prop types for Badge
+Badge.propTypes = {
+  className: PropTypes.string, // Validate className
+  variant: PropTypes.oneOf(["default", "secondary", "destructive", "outline"]), // Validate variant
+};
+
+// Export Badge and badgeVariants
+export { Badge, badgeVariants };

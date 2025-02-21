@@ -1,38 +1,63 @@
-import * as React from "react"
+"use client";
 
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import PropTypes from "prop-types"; // Import PropTypes
+import { cn } from "@/lib/utils";
 
+// Table Component
 const Table = React.forwardRef(({ className, ...props }, ref) => (
   <div className="relative w-full overflow-auto">
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm", className)}
-      {...props} />
+      {...props}
+    />
   </div>
-))
-Table.displayName = "Table"
+));
+Table.displayName = "Table";
+Table.propTypes = {
+  className: PropTypes.string, // Validate className
+};
 
+// TableHeader Component
 const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
   <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
-))
-TableHeader.displayName = "TableHeader"
+));
+TableHeader.displayName = "TableHeader";
+TableHeader.propTypes = {
+  className: PropTypes.string, // Validate className
+};
 
+// TableBody Component
 const TableBody = React.forwardRef(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
     className={cn("[&_tr:last-child]:border-0", className)}
-    {...props} />
-))
-TableBody.displayName = "TableBody"
+    {...props}
+  />
+));
+TableBody.displayName = "TableBody";
+TableBody.propTypes = {
+  className: PropTypes.string, // Validate className
+};
 
+// TableFooter Component
 const TableFooter = React.forwardRef(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className)}
-    {...props} />
-))
-TableFooter.displayName = "TableFooter"
+    className={cn(
+      "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
+      className
+    )}
+    {...props}
+  />
+));
+TableFooter.displayName = "TableFooter";
+TableFooter.propTypes = {
+  className: PropTypes.string, // Validate className
+};
 
+// TableRow Component
 const TableRow = React.forwardRef(({ className, ...props }, ref) => (
   <tr
     ref={ref}
@@ -40,10 +65,15 @@ const TableRow = React.forwardRef(({ className, ...props }, ref) => (
       "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
       className
     )}
-    {...props} />
-))
-TableRow.displayName = "TableRow"
+    {...props}
+  />
+));
+TableRow.displayName = "TableRow";
+TableRow.propTypes = {
+  className: PropTypes.string, // Validate className
+};
 
+// TableHead Component
 const TableHead = React.forwardRef(({ className, ...props }, ref) => (
   <th
     ref={ref}
@@ -51,10 +81,15 @@ const TableHead = React.forwardRef(({ className, ...props }, ref) => (
       "h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className
     )}
-    {...props} />
-))
-TableHead.displayName = "TableHead"
+    {...props}
+  />
+));
+TableHead.displayName = "TableHead";
+TableHead.propTypes = {
+  className: PropTypes.string, // Validate className
+};
 
+// TableCell Component
 const TableCell = React.forwardRef(({ className, ...props }, ref) => (
   <td
     ref={ref}
@@ -62,18 +97,28 @@ const TableCell = React.forwardRef(({ className, ...props }, ref) => (
       "p-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       className
     )}
-    {...props} />
-))
-TableCell.displayName = "TableCell"
+    {...props}
+  />
+));
+TableCell.displayName = "TableCell";
+TableCell.propTypes = {
+  className: PropTypes.string, // Validate className
+};
 
+// TableCaption Component
 const TableCaption = React.forwardRef(({ className, ...props }, ref) => (
   <caption
     ref={ref}
     className={cn("mt-4 text-sm text-muted-foreground", className)}
-    {...props} />
-))
-TableCaption.displayName = "TableCaption"
+    {...props}
+  />
+));
+TableCaption.displayName = "TableCaption";
+TableCaption.propTypes = {
+  className: PropTypes.string, // Validate className
+};
 
+// Export all components
 export {
   Table,
   TableHeader,
@@ -83,4 +128,4 @@ export {
   TableRow,
   TableCell,
   TableCaption,
-}
+};

@@ -16,8 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react"; // Removed unused 'use'
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "./ui/input";
@@ -27,6 +26,8 @@ import useFetch from "@/hooks/use-fetch";
 import { createAccount } from "@/actions/dashboard";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import PropTypes from "prop-types"; // Added prop-types import
+import React from "react"; // Added React import
 
 const CreateAccountDrawer = ({ children }) => {
   const [open, setOpen] = useState(false);
@@ -184,6 +185,11 @@ const CreateAccountDrawer = ({ children }) => {
       </DrawerContent>
     </Drawer>
   );
+};
+
+// Add prop-types validation
+CreateAccountDrawer.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default CreateAccountDrawer;
