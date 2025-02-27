@@ -18,7 +18,11 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${inter.className}`}>
+        <body
+          data-gramm="false"
+          suppressHydrationWarning
+          className={`${inter.className}`}
+        >
           {/* header */}
           <Header />
           {/* main content */}

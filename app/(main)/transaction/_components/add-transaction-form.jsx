@@ -25,7 +25,7 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react"; // Import React explicitly (optional in React 17+)
+import { useEffect, useState } from "react"; // Import React explicitly (optional in React 17+)
 import { toast } from "sonner";
 import ReceiptScanner from "./receipt-scanner";
 import PropTypes from "prop-types"; // Import PropTypes for validation
@@ -37,6 +37,7 @@ const AddTransactionForm = ({
   editMode = false,
 }) => {
   const router = useRouter();
+  const [isSubmitted, setIsSubmitted] = useState(false); // Track form submission
 
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
@@ -54,6 +55,7 @@ const AddTransactionForm = ({
     reset,
   } = useForm({
     resolver: zodResolver(transactionSchema),
+    mode: "onSubmit", // Only validate on submit
     defaultValues:
       editMode && initialData
         ? {
@@ -91,6 +93,7 @@ const AddTransactionForm = ({
   );
 
   const onSubmit = async (data) => {
+    setIsSubmitted(true); // Set isSubmitted to true on form submission
     const formData = { ...data, amount: parseFloat(data.amount) };
     if (editMode) {
       transactionFn(editId, formData);
@@ -122,6 +125,17 @@ const AddTransactionForm = ({
       if (scanedData.data.category) {
         setValue("category", scanedData.data.category);
       }
+
+      // Reset errors after updating form fields
+      reset(
+        {
+          amount: scanedData.data.amount.toString(),
+          date: new Date(scanedData.data.date),
+          description: scanedData.data.description,
+          category: scanedData.data.category,
+        },
+        { keepErrors: false } // Clear errors
+      );
     } else {
       console.error("Invalid scanedData structure:", scanedData);
     }
@@ -144,7 +158,7 @@ const AddTransactionForm = ({
             <SelectItem value="INCOME">Income</SelectItem>
           </SelectContent>
         </Select>
-        {errors.type && (
+        {isSubmitted && errors.type && (
           <p className="text-sm text-red-500">{errors.type.message}</p>
         )}
       </div>
@@ -158,7 +172,7 @@ const AddTransactionForm = ({
             placeholder="0.00"
             {...register("amount")}
           />
-          {errors.amount && (
+          {isSubmitted && errors.amount && (
             <p className="text-sm text-red-500">{errors.amount.message}</p>
           )}
         </div>
@@ -188,7 +202,7 @@ const AddTransactionForm = ({
               </CreateAccountDrawer>
             </SelectContent>
           </Select>
-          {errors.accountId && (
+          {isSubmitted && errors.accountId && (
             <p className="text-sm text-red-500">{errors.accountId.message}</p>
           )}
         </div>
@@ -211,7 +225,7 @@ const AddTransactionForm = ({
             ))}
           </SelectContent>
         </Select>
-        {errors.category && (
+        {isSubmitted && errors.category && (
           <p className="text-sm text-red-500">{errors.category.message}</p>
         )}
       </div>
@@ -241,7 +255,7 @@ const AddTransactionForm = ({
           </PopoverContent>
         </Popover>
 
-        {errors.date && (
+        {isSubmitted && errors.date && (
           <p className="text-sm text-red-500">{errors.date.message}</p>
         )}
       </div>
@@ -249,7 +263,7 @@ const AddTransactionForm = ({
       <div className="space-y-2">
         <label className="text-sm font-medium">Description</label>
         <Input placeholder="Enter description" {...register("description")} />
-        {errors.description && ( // Fixed typo from errors.date to errors.description
+        {isSubmitted && errors.description && (
           <p className="text-sm text-red-500">{errors.description.message}</p>
         )}
       </div>
@@ -286,7 +300,7 @@ const AddTransactionForm = ({
               <SelectItem value="YEARLY">Yearly</SelectItem>
             </SelectContent>
           </Select>
-          {errors.recurringInterval && (
+          {isSubmitted && errors.recurringInterval && (
             <p className="text-sm text-red-500">
               {errors.recurringInterval.message}
             </p>
@@ -316,7 +330,7 @@ const AddTransactionForm = ({
           ) : editMode ? (
             "Update Transaction"
           ) : (
-            "Create Transaction" // Removed extra space from " Create Transaction"
+            "Create Transaction"
           )}
         </Button>
       </div>
