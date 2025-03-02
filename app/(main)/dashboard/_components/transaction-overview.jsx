@@ -39,18 +39,18 @@ const DashboardOverview = ({
   const [selectedAccountId, setSelectedAccountId] = useState(defaultAccountId);
 
   const accountTransactions = transactions
-    .filter((t) => t.accountId === selectedAccountId) // Filter by selected account
+    .filter((t) => t.accountId === selectedAccountId)
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5);
 
-  const currentDate = new Date();
-  const currentMonthEx = transactions.filter(
-    (t) =>
-      t.accountId === selectedAccountId && // Filter by selected account
-      t.type === "EXPENSE" && // Only include expenses
-      new Date(t.date).getMonth() === currentDate.getMonth() && // Current month
-      new Date(t.date).getFullYear() === currentDate.getFullYear() // Current year
-  );
+  const currentMonthEx = accountTransactions.filter((t) => {
+    const transactionDate = new Date(t.date);
+    return (
+      t.accountId === selectedAccountId &&
+      transactionDate.getMonth() === new Date().getMonth() &&
+      transactionDate.getFullYear() === new Date().getFullYear()
+    );
+  });
 
   const expenseByCategory = currentMonthEx.reduce((acc, transaction) => {
     const category = transaction.category;
